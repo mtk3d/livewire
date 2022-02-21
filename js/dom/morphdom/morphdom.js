@@ -12,6 +12,8 @@
 
 import specialElHandlers from './specialElHandlers';
 import { compareNodeNames, createElementNS, doc, moveChildren, toElement } from './util';
+import { handleAnimation , handleAnimationInterruption } from '../transition/handleAnimation';
+import { ENTER, LEAVE } from '../transition/transitions';
 
 var ELEMENT_NODE = 1;
 var DOCUMENT_FRAGMENT_NODE = 11;
@@ -62,6 +64,8 @@ export default function morphdomFactory(morphAttrs) {
         var onBeforeElChildrenUpdated = options.onBeforeElChildrenUpdated || noop;
         var childrenOnly = options.childrenOnly === true;
 
+        var animationInterruption = handleAnimationInterruption(fromNode);
+
         // This object is used as a lookup to quickly find all keyed elements in the original DOM tree.
         var fromNodesLookup = Object.create(null);
         var keyedRemovalList = [];
@@ -110,7 +114,9 @@ export default function morphdomFactory(morphAttrs) {
             }
 
             if (parentNode) {
-                parentNode.removeChild(node);
+                handleAnimation(node, LEAVE, animationInterruption).then(() => {
+                    parentNode.removeChild(node);
+                });
             }
 
             callHook(onNodeDiscarded, node);
@@ -404,6 +410,8 @@ export default function morphdomFactory(morphAttrs) {
                             curToNodeChild = curToNodeChild.actualize(fromEl.ownerDocument || doc);
                         }
                         fromEl.appendChild(curToNodeChild);
+
+                        handleAnimation(curToNodeChild, ENTER, animationInterruption);
                         handleNodeAdded(curToNodeChild);
                     }
                 }
