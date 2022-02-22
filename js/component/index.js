@@ -13,6 +13,8 @@ import ModelAction from '@/action/model'
 import DeferredModelAction from '@/action/deferred-model'
 import MessageBus from '../MessageBus'
 import { alpinifyElementsForMorphdom, getEntangleFunction } from './SupportAlpine'
+import { handleAnimation , handleAnimationInterruption } from '../dom/transition/handleAnimation';
+import { ENTER, LEAVE } from '../dom/transition/transitions';
 
 export default class Component {
     constructor(el, connection) {
@@ -45,6 +47,8 @@ export default class Component {
         this.prefetchManager = new PrefetchManager(this)
         this.uploadManager = new UploadManager(this)
         this.watchers = {}
+
+        this.animationInterruption = null;
 
         store.callHook('component.initialized', this)
 
@@ -279,7 +283,7 @@ export default class Component {
 
     handleResponse(message) {
         let response = message.response
-        
+
         this.updateServerMemoFromResponseAndMergeBackIntoResponse(message)
 
         store.callHook('message.received', message, this)
@@ -383,6 +387,10 @@ export default class Component {
     handleMorph(dom) {
         this.morphChanges = { changed: [], added: [], removed: [] }
 
+        console.log('bef', this.el.outerHTML);
+        this.animationInterruption = handleAnimationInterruption(this.el);
+        console.log('aft', this.el.outerHTML);
+
         morphdom(this.el, dom, {
             childrenOnly: false,
 
@@ -397,7 +405,7 @@ export default class Component {
             },
 
             onBeforeNodeAdded: node => {
-                //
+                handleAnimation(node, ENTER, this.animationInterruption, () => {});
             },
 
             onBeforeNodeDiscarded: node => {
@@ -410,6 +418,12 @@ export default class Component {
                 ) {
                     return false
                 }
+
+                return !handleAnimation(node, LEAVE, this.animationInterruption, () => {
+                    console.log('remove');
+                    store.callHook('element.removed', node, this);
+                    node.remove();
+                });
             },
 
             onNodeDiscarded: node => {

@@ -2,11 +2,10 @@ export default {
     stack: [],
 
     process(now) {
-        this.stack.forEach(transition => {
-            const isFinished = transition.animation.isFinished(now);
+        this.stack.forEach(animation => {
+            const isFinished = animation.isFinished(now);
             if (isFinished) {
-                transition.resolve();
-                this.stack = this.stack.filter(singleTransition => singleTransition !== transition);
+                this.stack = this.stack.filter(a => a !== animation);
             }
         });
         if (this.stack.length !== 0) requestAnimationFrame(this.process.bind(this));
@@ -14,21 +13,18 @@ export default {
 
     append(animation) {
         const isLoopRunning = this.stack.length !== 0;
+        console.log('append');
         if (!isLoopRunning) requestAnimationFrame(this.process.bind(this));
-
-        return new Promise(resolve => {
-            this.stack.push({ animation, resolve });
-        });
+        this.stack.push(animation);
     },
 
     interruptFor(node, parentId) {
-        const transition = this.stack.find(runningTransition => runningTransition.animation.key === parentId);
-
-        if (transition) {
+        const animation = this.stack.find(a => a.key === parentId);
+        console.log('trying to interrupt')
+        if (animation) {
             console.log('interrupted');
-            transition.resolve();
-            this.stack = this.stack.filter(singleTransition => singleTransition.animation !== transition.animation);
-            return transition.animation.interrupt(performance.now());
+            this.stack = this.stack.filter(a => a !== animation);
+            return animation.interrupt(performance.now());
         }
 
         return null;

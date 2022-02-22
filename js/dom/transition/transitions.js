@@ -34,11 +34,10 @@ export const fly = (node, opts) => t => {
     const x = opts.x ?? 0;
     const y = opts.y ?? 0;
 
-    return `transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
-			opacity: ${target_opacity - (1 - t)}`;
+    return `transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);`;
 }
 
-export const createAnimation = (node, direction, interrupted = null) => {
+export const createAnimation = (node, direction, interrupted = null, onFinishedCallback) => {
     let duration = 2000;
     let startFrom = 1 - direction;
     const now = performance.now();
@@ -57,6 +56,7 @@ export const createAnimation = (node, direction, interrupted = null) => {
 
     return new RunningTransition(parentId, duration, end, () => {
         console.log('remove animation');
-        node.style.animation = 'none';
+        node.style.removeProperty('animation');
+        onFinishedCallback();
     });
 }

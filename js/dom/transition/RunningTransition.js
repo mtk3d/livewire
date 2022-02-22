@@ -28,6 +28,7 @@ export default class RunningTransition {
 
     isFinished(now) {
         const isFinished = this.end < now;
+        console.log('finished checking');
         if(isFinished) this.clearCallback();
         return isFinished;
     }

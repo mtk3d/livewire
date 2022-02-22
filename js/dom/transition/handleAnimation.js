@@ -1,13 +1,14 @@
 import animationLoop from './animationLoop';
 import { createAnimation, ENTER, LEAVE } from './transitions';
 
-export function handleAnimation (node, direction, interrupted) {
+export function handleAnimation (node, direction, interrupted, onFinishedCallback) {
     if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('wire:transition')) {
-        const animation = createAnimation(node, direction, interrupted);
-        return animationLoop.append(animation);
+        const animation = createAnimation(node, direction, interrupted, onFinishedCallback);
+        animationLoop.append(animation);
+        return true;
     }
 
-    return new Promise(resolve => resolve());
+    return false;
 }
 
 export function handleAnimationInterruption(node) {
