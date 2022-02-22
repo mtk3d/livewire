@@ -404,7 +404,6 @@ export default function morphdomFactory(morphAttrs) {
                             curToNodeChild = curToNodeChild.actualize(fromEl.ownerDocument || doc);
                         }
                         fromEl.appendChild(curToNodeChild);
-                        
                         handleNodeAdded(curToNodeChild);
                     }
                 }
