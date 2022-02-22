@@ -34,7 +34,8 @@ export const fly = (node, opts) => t => {
     const x = opts.x ?? 0;
     const y = opts.y ?? 0;
 
-    return `transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);`;
+    return `transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
+            opacity: ${t};`;
 }
 
 export const createAnimation = (node, direction, interrupted = null, onFinishedCallback) => {
@@ -44,19 +45,18 @@ export const createAnimation = (node, direction, interrupted = null, onFinishedC
     let end = now + duration;
 
     if (interrupted) {
-        startFrom = interrupted.interval;
         duration = interrupted.duration;
+        startFrom = direction === 1 ? interrupted.interval : 1 - interrupted.interval;
         end = now + duration;
     }
 
-    const animation = fly(node, { x: 400 });
+    const animation = fly(node, { y: 400 });
     const keyframes = createKeyframes(duration, animation, startFrom, direction);
     node.style.animation = `${keyframes} ${duration}ms linear both`;
 
     const parentId = node.closest('[wire\\3Aid]').getAttribute('wire:id');
 
     return new RunningTransition(parentId, duration, end, () => {
-        console.log('remove animation');
         node.style.removeProperty('animation');
         onFinishedCallback();
     });

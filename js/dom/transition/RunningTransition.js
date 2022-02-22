@@ -28,10 +28,8 @@ export default class RunningTransition {
 
     isFinished(now) {
         const isFinished = this.end <= now;
-        console.log(this.end, now);
         if(isFinished) {
             this.clearCallback();
-            console.log('finished')
         }
         return isFinished;
     }
