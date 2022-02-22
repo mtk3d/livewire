@@ -387,9 +387,8 @@ export default class Component {
     handleMorph(dom) {
         this.morphChanges = { changed: [], added: [], removed: [] }
 
-        console.log('bef', this.el.outerHTML);
         this.animationInterruption = handleAnimationInterruption(this.el);
-        console.log('aft', this.el.outerHTML);
+        console.log(this.animationInterruption);
 
         morphdom(this.el, dom, {
             childrenOnly: false,

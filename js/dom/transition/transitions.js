@@ -41,11 +41,12 @@ export const createAnimation = (node, direction, interrupted = null, onFinishedC
     let duration = 2000;
     let startFrom = 1 - direction;
     const now = performance.now();
-    const end = now + duration;
+    let end = now + duration;
 
     if (interrupted) {
         startFrom = interrupted.interval;
         duration = interrupted.duration;
+        end = now + duration;
     }
 
     const animation = fly(node, { x: 400 });
